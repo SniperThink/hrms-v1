@@ -312,6 +312,7 @@ if not DEBUG or config('FORCE_HTTPS', default=False, cast=bool):
     
     # Override URL scheme for reverse() and build_absolute_uri()
     os.environ['HTTPS'] = 'on'
+    os.environ['wsgi.url_scheme'] = 'https'
 
 # Vercel-specific settings
 if config('VERCEL', default=False, cast=bool):
@@ -333,6 +334,10 @@ if config('VERCEL', default=False, cast=bool):
     
     # Ensure Django knows we're behind HTTPS
     os.environ['HTTPS'] = 'on'
+    os.environ['wsgi.url_scheme'] = 'https'
+    
+    # Force HTTPS in all generated URLs
+    ALLOWED_HOSTS.append('.vercel.app')
 
 # Additional CORS configuration for HTTPS
 CORS_REPLACE_HTTPS_REFERER = True
@@ -340,3 +345,13 @@ CORS_URLS_REGEX = r'^/api/.*$'
 
 # Static files configuration for production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Additional security headers to force HTTPS
+SECURE_CONTENT_SECURITY_POLICY = "upgrade-insecure-requests;"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+
+# Force all URLs to use HTTPS scheme
+if not DEBUG:
+    # Override Django's URL building to always use HTTPS
+    from django.conf import settings
+    settings.DEFAULT_SCHEME = 'https'
