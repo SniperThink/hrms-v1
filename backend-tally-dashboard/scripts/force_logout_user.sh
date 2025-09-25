@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-BASE_URL="http://127.0.0.1:8000/api/"
+BASE_URL="https://127.0.0.1:8000/api/"
 EMAIL="${1:-test@client2.com}"
 
 # The ForceLogoutView uses only email and is AllowAny, so we can call it without auth.

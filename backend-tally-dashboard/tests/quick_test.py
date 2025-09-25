@@ -12,7 +12,7 @@ def quick_performance_test():
     print("1️⃣ Health Check...")
     start_time = time.time()
     try:
-        response = requests.get("http://127.0.0.1:8000/api/health/", timeout=10)
+        response = requests.get("/api/health/", timeout=10)
         end_time = time.time()
         health_time = (end_time - start_time) * 1000
         print(f"   ✅ Health: {health_time:.0f}ms")
@@ -25,7 +25,7 @@ def quick_performance_test():
     start_time = time.time()
     try:
         login_response = session.post(
-            "http://127.0.0.1:8000/api/public/login/",
+            "/api/public/login/",
             json={'email': 'final@gmail.com', 'password': 'Siddhant@2'},
             timeout=15
         )
@@ -41,7 +41,7 @@ def quick_performance_test():
             if token:
                 session.headers.update({'Authorization': f'Bearer {token}'})
         else:
-            print(f"   ❌ Login failed: HTTP {login_response.status_code}")
+            print(f"   ❌ Login failed: HTTPS {login_response.status_code}")
             return
     except Exception as e:
         print(f"   ❌ Login error: {e}")

@@ -57,6 +57,6 @@ class Command(BaseCommand):
                 f'Tenant: {tenant_name}\n'
                 f'Subdomain: {subdomain}\n'
                 f'Admin: {admin_email}\n'
-                f'Access URL: http://{subdomain}.localhost:8000'
+                f'Access URL: https://{subdomain}.localhost:8000'
             )
         ) 
