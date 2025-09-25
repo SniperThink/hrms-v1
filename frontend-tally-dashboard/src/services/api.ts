@@ -34,7 +34,7 @@ const refreshAuthToken = async (): Promise<boolean> => {
   } catch (error) {
     console.error("Token refresh failed:", error);
   }
-  
+
   return false;
 };
 
@@ -81,7 +81,7 @@ export const apiCall = async (
     } else {
       // Refresh failed, redirect to login
       localStorage.clear();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   }
 
@@ -99,7 +99,7 @@ export const apiRequest = async (
     const error = await response
       .json()
       .catch((): APIError => ({ error: "Network error" }));
-    throw new Error((error as APIError).error || `HTTP ${response.status}`);
+    throw new Error((error as APIError).error || `HTTPS ${response.status}`);
   }
 
   return await response.json();
