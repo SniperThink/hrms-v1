@@ -10,7 +10,7 @@ def upload_monthly_attendance():
     """Upload monthly attendance summary data"""
     
     # Step 1: Authenticate
-    auth_url = "http://localhost:8000/api/public/login/"
+    auth_url = "/api/public/login/"
     login_data = {
         "email": "test@client.com",
         "password": "Test@123"
@@ -31,7 +31,7 @@ def upload_monthly_attendance():
             print("✅ Authentication successful!")
             
             # Step 2: Upload monthly attendance data via API
-            upload_url = "http://localhost:8000/api/upload-monthly-attendance/"
+            upload_url = "/api/upload-monthly-attendance/"
             
             # Prepare the monthly attendance data
             monthly_data = {

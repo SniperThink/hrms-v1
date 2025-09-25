@@ -1,29 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 const ChangePassword: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   // Get user data from navigation state or localStorage
-  const user = location.state?.user || JSON.parse(localStorage.getItem('tempUser') || '{}');
-  const tenant = location.state?.tenant || JSON.parse(localStorage.getItem('tenant') || '{}');
+  const user =
+    location.state?.user ||
+    JSON.parse(localStorage.getItem("tempUser") || "{}");
+  const tenant =
+    location.state?.tenant ||
+    JSON.parse(localStorage.getItem("tenant") || "{}");
   const email = location.state?.email || user.email;
 
   useEffect(() => {
     // If no user data, redirect to login
     if (!user.id) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -31,23 +35,23 @@ const ChangePassword: React.FC = () => {
     if (location.state?.message) {
       setMessage(location.state.message);
     } else {
-      setMessage('Please change your temporary password to continue.');
+      setMessage("Please change your temporary password to continue.");
     }
   }, [user, navigate, location.state]);
 
   const validatePassword = (password: string): string[] => {
     const errors: string[] = [];
     if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
+      errors.push("Password must be at least 8 characters long");
     }
     if (!/(?=.*[a-z])/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
+      errors.push("Password must contain at least one lowercase letter");
     }
     if (!/(?=.*[A-Z])/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
+      errors.push("Password must contain at least one uppercase letter");
     }
     if (!/(?=.*\d)/.test(password)) {
-      errors.push('Password must contain at least one number');
+      errors.push("Password must contain at least one number");
     }
     return errors;
   };
@@ -55,18 +59,18 @@ const ChangePassword: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     // Validate all fields are filled
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError('All fields are required');
+      setError("All fields are required");
       setLoading(false);
       return;
     }
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setError('New passwords do not match');
+      setError("New passwords do not match");
       setLoading(false);
       return;
     }
@@ -74,56 +78,59 @@ const ChangePassword: React.FC = () => {
     // Validate password strength
     const passwordErrors = validatePassword(newPassword);
     if (passwordErrors.length > 0) {
-      setError(passwordErrors.join('. '));
+      setError(passwordErrors.join(". "));
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/password/change/', {
-        method: 'POST',
+      const response = await fetch("/api/password/change/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: email,
           current_password: currentPassword,
           new_password: newPassword,
-          confirm_password: confirmPassword
-        })
+          confirm_password: confirmPassword,
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Store authentication data if tokens are provided
         if (data.access && data.refresh) {
-          localStorage.setItem('access', data.access);
-          localStorage.setItem('refresh', data.refresh);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.setItem('tenant', JSON.stringify(tenant));
-          
+          localStorage.setItem("access", data.access);
+          localStorage.setItem("refresh", data.refresh);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("tenant", JSON.stringify(tenant));
+
           // Clean up temporary user data
-          localStorage.removeItem('tempUser');
-          
+          localStorage.removeItem("tempUser");
+
           // Navigate to HR dashboard
-          navigate('/hr-management', {
+          navigate("/hr-management", {
             state: {
-              message: 'Password changed successfully! Welcome to your dashboard.'
-            }
+              message:
+                "Password changed successfully! Welcome to your dashboard.",
+            },
           });
         } else {
-          setError('Password change successful but authentication failed. Please try logging in again.');
+          setError(
+            "Password change successful but authentication failed. Please try logging in again."
+          );
           setTimeout(() => {
-            navigate('/login');
+            navigate("/login");
           }, 3000);
         }
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to change password');
+        setError(errorData.error || "Failed to change password");
       }
     } catch {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -150,7 +157,10 @@ const ChangePassword: React.FC = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email Address
             </label>
             <input
@@ -163,13 +173,16 @@ const ChangePassword: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="currentPassword"
+              className="block text-sm font-medium text-gray-700"
+            >
               Current Password
             </label>
             <div className="mt-1 relative">
               <input
                 id="currentPassword"
-                type={showCurrentPassword ? 'text' : 'password'}
+                type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
@@ -194,13 +207,16 @@ const ChangePassword: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="newPassword"
+              className="block text-sm font-medium text-gray-700"
+            >
               New Password
             </label>
             <div className="mt-1 relative">
               <input
                 id="newPassword"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
@@ -231,13 +247,16 @@ const ChangePassword: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700"
+            >
               Confirm New Password
             </label>
             <div className="mt-1 relative">
               <input
                 id="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -270,14 +289,14 @@ const ChangePassword: React.FC = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50"
             >
-              {loading ? 'Changing Password...' : 'Change Password'}
+              {loading ? "Changing Password..." : "Change Password"}
             </button>
           </div>
 
           <div className="text-center">
             <button
               type="button"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="text-sm text-teal-600 hover:text-teal-500"
             >
               Back to Login
@@ -289,4 +308,4 @@ const ChangePassword: React.FC = () => {
   );
 };
 
-export default ChangePassword; 
+export default ChangePassword;

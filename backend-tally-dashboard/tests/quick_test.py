@@ -51,7 +51,7 @@ def quick_performance_test():
     print("\n3️⃣ API Endpoint Test...")
     start_time = time.time()
     try:
-        response = session.get("http://127.0.0.1:8000/api/dropdown-options/", timeout=15)
+        response = session.get("api/dropdown-options/", timeout=15)
         end_time = time.time()
         api_time = (end_time - start_time) * 1000
         

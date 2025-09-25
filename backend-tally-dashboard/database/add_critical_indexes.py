@@ -124,7 +124,7 @@ try:
         print(f"   • TOTAL: 7330ms → 1500-2000ms")
         
         print(f"\n⚡ Test the optimized API now:")
-        print(f"   http://127.0.0.1:8000/api/salary-data/frontend_charts/?time_period=last_6_months&department=All")
+        print(f" /api/salary-data/frontend_charts/?time_period=last_6_months&department=All")
     
 except ImportError as e:
     print("⚠️  Django not available. Please run SQL commands manually:")
