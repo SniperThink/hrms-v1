@@ -26,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-le&rfq=q9!t$%_4%o_=+r0pi!b9e-w3o(6s72gl2x^by%2$(w0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)  # Changed default to False
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,hrms-v1-x4vi.vercel.app', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -164,7 +164,7 @@ else:
     # Production: Restrict to specific origins
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', 
-        default='http://localhost:5173,http://127.0.0.1:5173', 
+        default='https://hrms-v1-x4vi.vercel.app,http://localhost:5173,http://127.0.0.1:5173', 
         cast=lambda v: [s.strip() for s in v.split(',')])
     print("🔒 CORS: Restricted to specific origins (Production mode)")
 
@@ -237,7 +237,7 @@ GOOGLE_OAUTH_REFRESH_TOKEN = config('GOOGLE_OAUTH_REFRESH_TOKEN', default='')
 # Invitation and OTP Settings
 INVITATION_TOKEN_EXPIRY_HOURS = config('INVITATION_TOKEN_EXPIRY_HOURS', default=72, cast=int)
 OTP_EXPIRY_MINUTES = config('OTP_EXPIRY_MINUTES', default=10, cast=int)
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+FRONTEND_URL = config('FRONTEND_URL', default='https://hrms-v1-x4vi.vercel.app')
 
 
 # AWS S3 Configuration (for production)
@@ -297,3 +297,21 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    
+    # Force HTTPS for all URLs
+    USE_TZ = True
+    SECURE_REFERRER_POLICY = 'same-origin'
+
+# Vercel-specific settings
+if config('VERCEL', default=False, cast=bool):
+    # Static files handling for Vercel
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
+    
+    # Database connection optimizations for serverless
+    DATABASES['default']['CONN_MAX_AGE'] = 0  # Disable connection pooling for serverless
+    DATABASES['default']['OPTIONS'] = {
+        'connect_timeout': 5,  # Faster timeout for serverless
+        'options': '-c default_transaction_isolation=serializable'
+    }
