@@ -50,6 +50,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this for better static file serving
+    'excel_data.middleware.force_https_middleware.ForceHTTPSMiddleware',  # Add HTTPS enforcement
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -302,6 +304,15 @@ if not DEBUG:
     USE_TZ = True
     SECURE_REFERRER_POLICY = 'same-origin'
 
+# Force HTTPS URL generation for production
+if not DEBUG or config('FORCE_HTTPS', default=False, cast=bool):
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_TLS = True
+    
+    # Override URL scheme for reverse() and build_absolute_uri()
+    os.environ['HTTPS'] = 'on'
+
 # Vercel-specific settings
 if config('VERCEL', default=False, cast=bool):
     # Static files handling for Vercel
@@ -315,3 +326,17 @@ if config('VERCEL', default=False, cast=bool):
         'connect_timeout': 5,  # Faster timeout for serverless
         'options': '-c default_transaction_isolation=serializable'
     }
+    
+    # Force HTTPS for Vercel
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # Ensure Django knows we're behind HTTPS
+    os.environ['HTTPS'] = 'on'
+
+# Additional CORS configuration for HTTPS
+CORS_REPLACE_HTTPS_REFERER = True
+CORS_URLS_REGEX = r'^/api/.*$'
+
+# Static files configuration for production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
