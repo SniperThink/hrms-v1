@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponsePermanentRedirect
-import json
 
 class ForceHTTPSMiddleware(MiddlewareMixin):
     """
@@ -15,11 +14,6 @@ class ForceHTTPSMiddleware(MiddlewareMixin):
             request.is_secure = lambda: True
             request.META['wsgi.url_scheme'] = 'https'
             request.META['HTTP_X_FORWARDED_PROTO'] = 'https'
-            
-            # Force redirect HTTP to HTTPS for non-API requests
-            if not request.is_secure() and not request.path.startswith('/api/'):
-                secure_url = request.build_absolute_uri().replace('http://', 'https://')
-                return HttpResponsePermanentRedirect(secure_url)
         
         return None
     
@@ -41,6 +35,12 @@ class ForceHTTPSMiddleware(MiddlewareMixin):
             if location.startswith('http://'):
                 response['Location'] = location.replace('http://', 'https://', 1)
         
+        # Add security headers to force HTTPS
+        if not settings.DEBUG:
+            response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+            response['Content-Security-Policy'] = 'upgrade-insecure-requests;'
+        
+        return response
         # Add security headers to force HTTPS
         if not settings.DEBUG:
             response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'

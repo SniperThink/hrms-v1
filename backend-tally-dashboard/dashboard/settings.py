@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-le&rfq=q9!t$%_4%o_=+r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)  # Changed default to False
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,hrms-v1-x4vi.vercel.app', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,hrms-v1-64ls.vercel.app', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -323,9 +323,9 @@ if config('VERCEL', default=False, cast=bool):
     
     # Database connection optimizations for serverless
     DATABASES['default']['CONN_MAX_AGE'] = 0  # Disable connection pooling for serverless
+    DATABASES['default']['CONN_HEALTH_CHECKS'] = False  # Disable health checks for serverless
     DATABASES['default']['OPTIONS'] = {
         'connect_timeout': 5,  # Faster timeout for serverless
-        'options': '-c default_transaction_isolation=serializable'
     }
     
     # Force HTTPS for Vercel
@@ -338,6 +338,25 @@ if config('VERCEL', default=False, cast=bool):
     
     # Force HTTPS in all generated URLs
     ALLOWED_HOSTS.append('.vercel.app')
+    
+    # Disable logging to files for serverless
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+        },
+    }
 
 # Additional CORS configuration for HTTPS
 CORS_REPLACE_HTTPS_REFERER = True
